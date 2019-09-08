@@ -1,0 +1,12 @@
+<a href="/">go back</a>
+<pre id="board"></pre>
+<script>
+  const board = document.querySelector("#board");
+  let log = console.log
+  console.log = (...args) => {
+    const str = args.join(' ');
+    board.innerText += str + '\n';
+    log(...args);
+  }
+</script>
+<script src="./index.js" type="module"></script>

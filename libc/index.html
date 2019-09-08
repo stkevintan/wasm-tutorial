@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+</head>
+<body>
+<a href="/">go back</a>
+<p>string_to_int('42') = <span id="int"></span></p>
+<p>500! printed to the console. <button onclick="window.dumpMemory()">Dump memory</button></p>
+<pre id="board"></pre>
+<script>
+  let log = console.log
+  console.log = (...args) => {
+    const str = args.join(' ');
+    board.innerText += str + '\n';
+    log(...args);
+  }
+</script>
+<script>
+let wasm;
+
+function get_memory() {
+	return new Uint8Array(wasm.instance.exports.memory.buffer);
+}
+
+const decoder = new TextDecoder("utf-8");
+const encoder = new TextEncoder("utf-8");
+
+function charPtrToString(str) {
+	const memory = get_memory();
+	let length=0;
+	for (; memory[str + length] !== 0 ;++length) {}
+	return decoder.decode(memory.subarray(str, str + length));
+}
+
+function stringToCharPtr(str) {
+	const data = encoder.encode(str + "\x00");
+	const ptr = wasm.instance.exports.get_memory_for_string(data.length + 1);
+	const memory = get_memory();
+	memory.subarray(ptr).set(data);
+	return ptr;
+}
+
+function freeCharPtr(ptr) {
+	wasm.instance.exports.free_memory_for_string(ptr);
+}
+
+// If the Webassemby module had been linked with
+//
+//   --import-memory
+//
+// its memory will be provided with
+//
+//   const wasmMemory = new WebAssembly.Memory({initial:10, maximum:100});
+//   const memory = new Uint8Array(wasmMemory.buffer);
+//
+// But this module is providing its own memory and exporting it.
+
+const importObject = {
+	env: {
+		print_string: function(str) {
+			console.log(charPtrToString(str));
+		}
+	}
+};
+
+WebAssembly.instantiateStreaming(fetch('library.wasm'), importObject)
+	.then(function(obj) {
+		wasm = obj;
+
+		const s = stringToCharPtr('42');
+    document.querySelector('#int').innerText = wasm.instance.exports.string_to_int(s);
+		freeCharPtr(s);
+		wasm.instance.exports.factorial(50);
+		wasm.instance.exports.factorial(100);
+		wasm.instance.exports.factorial(200);
+		wasm.instance.exports.factorial(500);
+    window.dumpMemory = () =>  wasm.instance.exports.debug_dump_memory();
+	});
+</script>
+</body>
+</html>
