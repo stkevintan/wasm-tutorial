@@ -18,6 +18,7 @@ func server(w http.ResponseWriter, r *http.Request) {
 	if jsFile.MatchString(uri) {
 		w.Header().Set("Content-Type", "text/javascript")
 	}
+  w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	fs.ServeHTTP(w, r)
 }
 

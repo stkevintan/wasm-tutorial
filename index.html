@@ -1,0 +1,54 @@
+<!DOCTYPE>
+<html>
+  <head>
+    <style>
+      main {
+        width: 80vw;
+        margin: 20px auto;
+        text-align: center;
+      }
+      main a {
+        display: inline-block;
+        outline: none;
+        --wekit-appearance: none;
+        text-decoration: none;
+        text-decoration: none;
+        color: #fff;
+        background: #186ddd;
+        padding: 3px 10px;
+        border-radius: 2px;
+      }
+      iframe {
+        display: block;
+        margin-top: 20px;
+        border: 3px dashed #e8e8e8;
+        width: 100%;
+        height: 60vh;
+        overflow: auto;
+      }
+    </style>
+    <script>
+      function setIframe() {
+        const hash = window.location.hash.replace('#', '');
+        if(hash) {
+          document.querySelector('iframe').src = `/${hash}?ts=${Date.now()}`;
+        }
+
+      }
+      window.addEventListener("DOMContentLoaded", setIframe) 
+      window.addEventListener("hashchange", setIframe, false)
+    </script>
+  </head>
+  <body>
+    <main>
+      <h1>C++ WebAssembly Examples</h1>
+        <a href="#add">add </a>
+        <a href="#quicksort">quicksort simple version</a>
+        <a href="#malloc">quicksort malloc version</a>
+        <a href="#libc">custom libc</a>
+        <a href="https://webassembly.studio/?f=zusgrp6mjtn" target="_blank">wasmception (external) </a>
+      <iframe>
+      </iframe>
+    </main>
+  </body>
+</html>
